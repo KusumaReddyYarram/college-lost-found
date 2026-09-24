@@ -4,6 +4,7 @@ import {
   User, Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, 
   CheckCircle2, Sparkles, GraduationCap, Building2, AlertCircle 
 } from 'lucide-react';
+import { authService } from '../services/api';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const Register = () => {
 
   const strength = getPasswordStrength(formData.password);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
@@ -67,14 +68,32 @@ const Register = () => {
     setIsLoading(true);
     setRegisterStatus(null);
 
-    // Simulate backend registration call to Express server
-    setTimeout(() => {
+    try {
+      const response = await authService.register({
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        department: formData.department,
+        year: formData.year
+      });
+
+      if (response.user && response.user.token) {
+        localStorage.setItem('campusfind_token', response.user.token);
+        localStorage.setItem('campusfind_user', JSON.stringify(response.user));
+      }
+
       setIsLoading(false);
       setRegisterStatus({
         type: 'success',
-        message: 'Account successfully registered! Data model validated for MongoDB Atlas insertion.'
+        message: 'Account successfully registered and persisted in MongoDB Atlas!'
       });
-    }, 1200);
+    } catch (error) {
+      setIsLoading(false);
+      setRegisterStatus({
+        type: 'error',
+        message: error.message || 'Registration failed. Please check input values.'
+      });
+    }
   };
 
   return (

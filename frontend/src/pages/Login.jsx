@@ -4,6 +4,7 @@ import {
   Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, 
   CheckCircle2, AlertCircle, KeyRound, UserCheck 
 } from 'lucide-react';
+import { authService } from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -25,19 +26,34 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setAuthStatus(null);
 
-    // Simulate authentication API call to Express + MongoDB Atlas
-    setTimeout(() => {
+    try {
+      const response = await authService.login({
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (response.user && response.user.token) {
+        localStorage.setItem('campusfind_token', response.user.token);
+        localStorage.setItem('campusfind_user', JSON.stringify(response.user));
+      }
+
       setIsLoading(false);
       setAuthStatus({
         type: 'success',
-        message: 'Authentication simulation successful! Ready for Express + MongoDB API integration.'
+        message: `Welcome back, ${response.user.fullName}! Connected live to MongoDB Atlas via Render.`
       });
-    }, 1200);
+    } catch (error) {
+      setIsLoading(false);
+      setAuthStatus({
+        type: 'error',
+        message: error.message || 'Login failed. Please check your credentials.'
+      });
+    }
   };
 
   return (
