@@ -15,7 +15,7 @@ const Register = () => {
     confirmPassword: '',
     department: '',
     year: '1st Year',
-    agreeTerms: false
+    agreeTerms: true
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -53,14 +53,6 @@ const Register = () => {
       setRegisterStatus({
         type: 'error',
         message: 'Passwords do not match. Please verify both fields.'
-      });
-      return;
-    }
-
-    if (!formData.agreeTerms) {
-      setRegisterStatus({
-        type: 'error',
-        message: 'Please accept the campus security & privacy terms to register.'
       });
       return;
     }
