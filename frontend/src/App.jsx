@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -20,6 +20,15 @@ const ScrollToTop = () => {
   }, [pathname]);
 
   return null;
+};
+
+// Protected route wrapper for authenticated-only pages
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('campusfind_token');
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
 };
 
 function App() {
@@ -57,7 +66,14 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/about" element={<About />} />
-            <Route path="/dashboard" element={<Dashboard onOpenReportModal={handleOpenReportModal} />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard onOpenReportModal={handleOpenReportModal} />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
 

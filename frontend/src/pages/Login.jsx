@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, 
   CheckCircle2, AlertCircle, KeyRound, UserCheck 
@@ -8,15 +8,24 @@ import { authService } from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const registeredEmail = location.state?.registeredEmail || '';
+
   const [formData, setFormData] = useState({
-    email: '',
+    email: registeredEmail,
     password: '',
     rememberMe: false
   });
 
+  const successNotice = location.state?.successMsg || (registeredEmail ? 'Account created successfully. Please log in.' : null);
+
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [authStatus, setAuthStatus] = useState(null);
+  const [authStatus, setAuthStatus] = useState(
+    successNotice
+      ? { type: 'success', message: successNotice }
+      : null
+  );
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

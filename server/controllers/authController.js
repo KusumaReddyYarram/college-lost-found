@@ -6,33 +6,35 @@ const generateToken = require('../utils/generateToken');
 // @access  Public
 const registerUser = async (req, res, next) => {
   try {
-    const { fullName, email, password, department, year } = req.body;
+    const { fullName, email, password, department, year, academicYear } = req.body;
 
     if (!fullName || !email || !password) {
       res.status(400);
       throw new Error('Please provide full name, college email, and password');
     }
 
-    // Check existing user
-    const userExists = await User.findOne({ email: email.toLowerCase() });
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Check existing user in MongoDB Atlas
+    const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
-      res.status(400);
-      throw new Error('User already exists with this college email address');
+      res.status(409);
+      throw new Error('An account with this email already exists.');
     }
 
-    // Create user
+    // Create user in MongoDB Atlas
     const user = await User.create({
-      fullName,
-      email: email.toLowerCase(),
+      fullName: fullName.trim(),
+      email: cleanEmail,
       password,
-      department: department || '',
-      year: year || '1st Year'
+      department: department ? department.trim() : '',
+      year: year || academicYear || '1st Year'
     });
 
     if (user) {
       res.status(201).json({
         status: 'success',
-        message: 'Account registered successfully',
+        message: 'Account created successfully. Please log in.',
         user: {
           _id: user._id,
           fullName: user.fullName,
@@ -65,7 +67,10 @@ const loginUser = async (req, res, next) => {
       throw new Error('Please provide email and password');
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Query MongoDB Atlas for user
+    const user = await User.findOne({ email: cleanEmail });
 
     if (user && (await user.matchPassword(password))) {
       res.status(200).json({

@@ -1,13 +1,35 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Search, Sparkles, Menu, X, Shield, ArrowRight, LayoutDashboard, LogOut } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { 
+  Sparkles, Menu, X, ArrowRight, LayoutDashboard, LogOut, ChevronDown, User, UserCheck 
+} from 'lucide-react';
 
 const Navbar = ({ onOpenReportModal }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const [token, setToken] = useState(localStorage.getItem('campusfind_token'));
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('campusfind_user'));
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    setToken(localStorage.getItem('campusfind_token'));
+    try {
+      setUser(JSON.parse(localStorage.getItem('campusfind_user')));
+    } catch {
+      setUser(null);
+    }
+  }, [location]);
 
   const isActive = (path) => location.pathname === path;
-  const isLoggedIn = !!localStorage.getItem('campusfind_token');
+  const isLoggedIn = !!token;
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -22,7 +44,11 @@ const Navbar = ({ onOpenReportModal }) => {
   const handleLogout = () => {
     localStorage.removeItem('campusfind_token');
     localStorage.removeItem('campusfind_user');
-    window.location.href = '/login';
+    setToken(null);
+    setUser(null);
+    setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
+    navigate('/login');
   };
 
   return (
@@ -79,12 +105,37 @@ const Navbar = ({ onOpenReportModal }) => {
                   <span>My Dashboard</span>
                 </Link>
 
-                <button
-                  onClick={handleLogout}
-                  className="px-3.5 py-2 text-sm font-medium text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded-xl transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    id="nav-user-dropdown-btn"
+                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-300 hover:text-white bg-slate-900 border border-slate-800 rounded-xl transition-all"
+                  >
+                    <UserCheck className="w-4 h-4 text-emerald-400" />
+                    <span className="max-w-[100px] truncate text-xs font-semibold">{user?.fullName || 'Account'}</span>
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 rounded-xl bg-slate-900 border border-slate-800 shadow-xl py-2 z-50">
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+                      >
+                        <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
+                        <span>My Dashboard</span>
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-rose-400 hover:bg-slate-800 text-left"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -103,6 +154,40 @@ const Navbar = ({ onOpenReportModal }) => {
                 >
                   Register
                 </Link>
+
+                {/* Arrow Dropdown Menu for Quick Navigation */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    id="nav-arrow-dropdown-btn"
+                    className="p-2 text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded-xl transition-all flex items-center gap-1 text-xs"
+                    title="Account Navigation Menu"
+                  >
+                    <User className="w-4 h-4 text-indigo-400" />
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-44 rounded-xl bg-slate-900 border border-slate-800 shadow-xl py-1.5 z-50">
+                      <Link
+                        to="/login"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+                      >
+                        <User className="w-3.5 h-3.5 text-indigo-400" />
+                        <span>Log In</span>
+                      </Link>
+                      <Link
+                        to="/register"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-indigo-300 hover:bg-slate-800 hover:text-white"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Register</span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </>
             )}
 
@@ -151,7 +236,7 @@ const Navbar = ({ onOpenReportModal }) => {
           </div>
 
           <div className="pt-4 border-t border-slate-800/80 flex flex-col gap-2.5">
-            {!isLoggedIn && (
+            {!isLoggedIn ? (
               <div className="grid grid-cols-2 gap-2">
                 <Link
                   to="/login"
@@ -168,6 +253,14 @@ const Navbar = ({ onOpenReportModal }) => {
                   Register
                 </Link>
               </div>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-rose-400 bg-rose-500/10 border border-rose-500/20"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
             )}
             
             <button

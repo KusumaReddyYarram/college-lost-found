@@ -1,5 +1,7 @@
-// CampusFind AI API Client Service
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://college-lost-found-2i20.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : 'https://college-lost-found-2i20.onrender.com/api');
 
 /**
  * Generic fetch wrapper for CampusFind API
@@ -19,14 +21,22 @@ const apiFetch = async (endpoint, options = {}) => {
       headers
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(data.message || 'API Request failed');
+      const error = new Error(data.message || 'API Request failed');
+      error.status = response.status;
+      error.data = data;
+      throw error;
     }
 
     return data;
   } catch (error) {
+    if (!error.status) {
+      error.message = (error.message === 'Failed to fetch' || error.name === 'TypeError')
+        ? 'Unable to connect to CampusFind AI server. Please verify the backend server is running.'
+        : error.message;
+    }
     console.error(`API Error [${endpoint}]:`, error.message);
     throw error;
   }

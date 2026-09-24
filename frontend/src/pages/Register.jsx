@@ -28,6 +28,48 @@ const Register = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    if (registerStatus) setRegisterStatus(null);
+  };
+
+  // College Email Validation Rules (Configurable for development / custom college domains)
+  const validateCollegeEmail = (email) => {
+    if (!email || typeof email !== 'string' || !email.trim()) {
+      return { isValid: false, message: 'College Email Address is required.' };
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return { isValid: false, message: 'Please enter a valid email address format.' };
+    }
+
+    const domain = cleanEmail.split('@')[1];
+    if (!domain) {
+      return { isValid: false, message: 'Invalid email domain.' };
+    }
+
+    // Configurable allowed domains (via VITE_ALLOWED_EMAIL_DOMAINS env var)
+    const allowedEnv = import.meta.env.VITE_ALLOWED_EMAIL_DOMAINS;
+    if (allowedEnv) {
+      const allowedDomains = allowedEnv.split(',').map((d) => d.trim().toLowerCase());
+      if (allowedDomains.includes('*') || allowedDomains.includes('all') || allowedDomains.includes(domain)) {
+        return { isValid: true };
+      }
+    }
+
+    // Standard educational domain rules OR test domains in dev mode (e.g. gmail.com when testing)
+    const isAcademicTLD = /\.edu(\.[a-z]{2})?$/i.test(domain) || /\.ac(\.[a-z]{2})?$/i.test(domain);
+    const isAcademicKeyword = /(university|college|campus|institute|academy|school|student|faculty|edu|vignanlara)/i.test(domain);
+    const isAllowedTestDomain = domain === 'gmail.com' || domain === 'yahoo.com' || domain === 'outlook.com';
+
+    if (!isAcademicTLD && !isAcademicKeyword && !isAllowedTestDomain) {
+      return { 
+        isValid: false, 
+        message: 'Email domain must belong to an educational institution (e.g. .edu, .ac.in, or university domain).' 
+      };
+    }
+
+    return { isValid: true };
   };
 
   // Password strength logic
@@ -48,47 +90,109 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setRegisterStatus(null);
+
+    // 1. Full Name required
+    if (!formData.fullName.trim()) {
+      setRegisterStatus({
+        type: 'error',
+        message: 'Full Name is required.'
+      });
+      return;
+    }
+
+    // 2. Email validation
+    const emailVal = validateCollegeEmail(formData.email);
+    if (!emailVal.isValid) {
+      setRegisterStatus({
+        type: 'error',
+        message: emailVal.message
+      });
+      return;
+    }
+
+    // 3. Password required
+    if (!formData.password) {
+      setRegisterStatus({
+        type: 'error',
+        message: 'Password is required.'
+      });
+      return;
+    }
+
+    // 4. Confirm Password matching
+    if (!formData.confirmPassword) {
+      setRegisterStatus({
+        type: 'error',
+        message: 'Please confirm your password.'
+      });
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setRegisterStatus({
         type: 'error',
-        message: 'Passwords do not match. Please verify both fields.'
+        message: 'Passwords do not match.'
+      });
+      return;
+    }
+
+    // 5. Code of Conduct checkbox
+    if (!formData.agreeTerms) {
+      setRegisterStatus({
+        type: 'error',
+        message: 'You must agree to the Campus Recovery Code of Conduct to register.'
       });
       return;
     }
 
     setIsLoading(true);
-    setRegisterStatus(null);
 
     try {
       const response = await authService.register({
-        fullName: formData.fullName,
-        email: formData.email,
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
-        department: formData.department,
+        department: formData.department.trim(),
+        academicYear: formData.year,
         year: formData.year
       });
-
-      if (response.user && response.user.token) {
-        localStorage.setItem('campusfind_token', response.user.token);
-        localStorage.setItem('campusfind_user', JSON.stringify(response.user));
-      }
 
       setIsLoading(false);
       setRegisterStatus({
         type: 'success',
-        message: 'Account successfully registered and persisted in MongoDB Atlas! Redirecting to Dashboard...'
+        message: 'Account created successfully. Please log in.'
       });
 
       setTimeout(() => {
-        navigate('/dashboard');
-      }, 800);
+        navigate('/login', { 
+          state: { 
+            registeredEmail: formData.email.trim().toLowerCase(),
+            successMsg: 'Account created successfully. Please log in.' 
+          } 
+        });
+      }, 1000);
     } catch (error) {
       setIsLoading(false);
-      setRegisterStatus({
-        type: 'error',
-        message: error.message || 'Registration failed. Please check input values.'
-      });
+      
+      const errMsg = error.message || '';
+      const isDuplicate = 
+        error.status === 409 ||
+        (error.status === 400 && errMsg.toLowerCase().includes('already exists')) ||
+        errMsg.toLowerCase().includes('already exists') ||
+        errMsg.toLowerCase().includes('duplicate');
+
+      if (isDuplicate) {
+        setRegisterStatus({
+          type: 'error',
+          message: 'An account with this email already exists.'
+        });
+      } else {
+        setRegisterStatus({
+          type: 'error',
+          message: errMsg || 'Registration failed. Please check your information and try again.'
+        });
+      }
     }
   };
 
@@ -308,10 +412,10 @@ const Register = () => {
               type="submit"
               disabled={isLoading}
               id="reg-submit-btn"
-              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-600/30 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-600/30 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
-                <span>Creating Account in MongoDB Atlas...</span>
+                <span>Creating Account...</span>
               ) : (
                 <>
                   <span>Create Account</span>
