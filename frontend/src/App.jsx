@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import About from './pages/About';
+import Dashboard from './pages/Dashboard';
 
 // Helper component to auto-scroll to top on page change
 const ScrollToTop = () => {
@@ -56,6 +57,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/about" element={<About />} />
+            <Route path="/dashboard" element={<Dashboard onOpenReportModal={handleOpenReportModal} />} />
           </Routes>
         </main>
 

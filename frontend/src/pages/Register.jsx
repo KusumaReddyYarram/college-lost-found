@@ -85,8 +85,12 @@ const Register = () => {
       setIsLoading(false);
       setRegisterStatus({
         type: 'success',
-        message: 'Account successfully registered and persisted in MongoDB Atlas!'
+        message: 'Account successfully registered and persisted in MongoDB Atlas! Redirecting to Dashboard...'
       });
+
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 800);
     } catch (error) {
       setIsLoading(false);
       setRegisterStatus({

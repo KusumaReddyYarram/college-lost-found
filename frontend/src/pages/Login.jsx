@@ -45,8 +45,12 @@ const Login = () => {
       setIsLoading(false);
       setAuthStatus({
         type: 'success',
-        message: `Welcome back, ${response.user.fullName}! Connected live to MongoDB Atlas via Render.`
+        message: `Welcome back, ${response.user.fullName}! Redirecting to Dashboard...`
       });
+
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 800);
     } catch (error) {
       setIsLoading(false);
       setAuthStatus({

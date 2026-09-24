@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Sparkles, Menu, X, Shield, ArrowRight } from 'lucide-react';
+import { Search, Sparkles, Menu, X, Shield, ArrowRight, LayoutDashboard, LogOut } from 'lucide-react';
 
 const Navbar = ({ onOpenReportModal }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
+  const isLoggedIn = !!localStorage.getItem('campusfind_token');
 
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'How It Works', path: '/#how-it-works' },
     { name: 'About', path: '/about' },
   ];
+
+  if (isLoggedIn) {
+    navLinks.push({ name: 'Dashboard', path: '/dashboard' });
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('campusfind_token');
+    localStorage.removeItem('campusfind_user');
+    window.location.href = '/login';
+  };
 
   return (
     <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80">
@@ -58,21 +69,42 @@ const Navbar = ({ onOpenReportModal }) => {
 
           {/* Auth & CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              to="/login"
-              id="nav-login-btn"
-              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors duration-200"
-            >
-              Log In
-            </Link>
-            
-            <Link
-              to="/register"
-              id="nav-register-btn"
-              className="px-4 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-all duration-200"
-            >
-              Register
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-md shadow-indigo-600/30"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>My Dashboard</span>
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="px-3.5 py-2 text-sm font-medium text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded-xl transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  id="nav-login-btn"
+                  className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors duration-200"
+                >
+                  Log In
+                </Link>
+                
+                <Link
+                  to="/register"
+                  id="nav-register-btn"
+                  className="px-4 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-all duration-200"
+                >
+                  Register
+                </Link>
+              </>
+            )}
 
             <button
               onClick={() => onOpenReportModal && onOpenReportModal('lost')}
@@ -119,22 +151,24 @@ const Navbar = ({ onOpenReportModal }) => {
           </div>
 
           <div className="pt-4 border-t border-slate-800/80 flex flex-col gap-2.5">
-            <div className="grid grid-cols-2 gap-2">
-              <Link
-                to="/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full text-center px-4 py-2.5 rounded-xl text-sm font-medium text-slate-200 bg-slate-800 border border-slate-700"
-              >
-                Log In
-              </Link>
-              <Link
-                to="/register"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full text-center px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-indigo-600"
-              >
-                Register
-              </Link>
-            </div>
+            {!isLoggedIn && (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full text-center px-4 py-2.5 rounded-xl text-sm font-medium text-slate-200 bg-slate-800 border border-slate-700"
+                >
+                  Log In
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full text-center px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-indigo-600"
+                >
+                  Register
+                </Link>
+              </div>
+            )}
             
             <button
               onClick={() => {
