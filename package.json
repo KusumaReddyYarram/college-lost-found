@@ -1,0 +1,10 @@
+{
+  "name": "college-lost-found-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "frontend:dev": "cd frontend && npm run dev",
+    "server:dev": "cd server && npm run dev"
+  }
+}
