@@ -31,42 +31,16 @@ const Register = () => {
     if (registerStatus) setRegisterStatus(null);
   };
 
-  // College Email Validation Rules (Configurable for development / custom college domains)
-  const validateCollegeEmail = (email) => {
+  // Standard Email Validation (Accepts any valid email format e.g. name@gmail.com, student@gmail.com, name@university.edu)
+  const validateEmail = (email) => {
     if (!email || typeof email !== 'string' || !email.trim()) {
-      return { isValid: false, message: 'College Email Address is required.' };
+      return { isValid: false, message: 'Email Address is required.' };
     }
 
     const cleanEmail = email.trim().toLowerCase();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(cleanEmail)) {
-      return { isValid: false, message: 'Please enter a valid email address format.' };
-    }
-
-    const domain = cleanEmail.split('@')[1];
-    if (!domain) {
-      return { isValid: false, message: 'Invalid email domain.' };
-    }
-
-    // Configurable allowed domains (via VITE_ALLOWED_EMAIL_DOMAINS env var)
-    const allowedEnv = import.meta.env.VITE_ALLOWED_EMAIL_DOMAINS;
-    if (allowedEnv) {
-      const allowedDomains = allowedEnv.split(',').map((d) => d.trim().toLowerCase());
-      if (allowedDomains.includes('*') || allowedDomains.includes('all') || allowedDomains.includes(domain)) {
-        return { isValid: true };
-      }
-    }
-
-    // Standard educational domain rules OR test domains in dev mode (e.g. gmail.com when testing)
-    const isAcademicTLD = /\.edu(\.[a-z]{2})?$/i.test(domain) || /\.ac(\.[a-z]{2})?$/i.test(domain);
-    const isAcademicKeyword = /(university|college|campus|institute|academy|school|student|faculty|edu|vignanlara)/i.test(domain);
-    const isAllowedTestDomain = domain === 'gmail.com' || domain === 'yahoo.com' || domain === 'outlook.com';
-
-    if (!isAcademicTLD && !isAcademicKeyword && !isAllowedTestDomain) {
-      return { 
-        isValid: false, 
-        message: 'Email domain must belong to an educational institution (e.g. .edu, .ac.in, or university domain).' 
-      };
+      return { isValid: false, message: 'Please enter a valid email address (e.g. name@gmail.com).' };
     }
 
     return { isValid: true };
@@ -102,7 +76,7 @@ const Register = () => {
     }
 
     // 2. Email validation
-    const emailVal = validateCollegeEmail(formData.email);
+    const emailVal = validateEmail(formData.email);
     if (!emailVal.isValid) {
       setRegisterStatus({
         type: 'error',
@@ -256,10 +230,10 @@ const Register = () => {
               </div>
             </div>
 
-            {/* College Email */}
+            {/* Email Address */}
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                College Email Address
+                Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
@@ -272,7 +246,7 @@ const Register = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="alex.rivera@university.edu"
+                  placeholder="name@gmail.com"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
                 />
               </div>

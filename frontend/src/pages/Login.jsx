@@ -103,10 +103,10 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             
-            {/* College Email */}
+            {/* Email Address */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                College Email Address
+                Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
@@ -119,7 +119,7 @@ const Login = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="student@university.edu"
+                  placeholder="name@gmail.com"
                   className="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
                 />
               </div>
@@ -245,8 +245,8 @@ const Login = () => {
                 <UserCheck className="w-4 h-4" />
               </div>
               <div className="text-xs">
-                <span className="font-bold text-white block">Verified Student Identity</span>
-                <span className="text-slate-400">Only authenticated college domain emails.</span>
+                <span className="font-bold text-white block">Verified Account Identity</span>
+                <span className="text-slate-400">Authenticates securely across all email domains.</span>
               </div>
             </div>
 

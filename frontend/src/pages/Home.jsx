@@ -498,7 +498,7 @@ const Home = ({ onOpenReportModal }) => {
               to="/register"
               className="px-8 py-3.5 rounded-xl font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/40 transition-all"
             >
-              Get Started with College Email
+              Get Started with Email
             </Link>
             <Link
               to="/about"

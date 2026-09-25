@@ -10,7 +10,7 @@ const registerUser = async (req, res, next) => {
 
     if (!fullName || !email || !password) {
       res.status(400);
-      throw new Error('Please provide full name, college email, and password');
+      throw new Error('Please provide full name, email address, and password');
     }
 
     const cleanEmail = email.trim().toLowerCase();
