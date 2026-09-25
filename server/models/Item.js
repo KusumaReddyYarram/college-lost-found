@@ -64,7 +64,7 @@ const itemSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['reported', 'potential_match', 'claim_pending', 'recovered', 'closed'],
+      enum: ['reported', 'lost', 'found', 'under_verification', 'potential_match', 'claim_pending', 'recovered', 'returned', 'closed'],
       default: 'reported'
     },
     potentialMatches: [
@@ -74,7 +74,12 @@ const itemSchema = new mongoose.Schema(
           ref: 'Item'
         },
         confidenceScore: Number,
+        matchLevel: {
+          type: String,
+          default: 'Possible Match'
+        },
         reasons: [String],
+        differences: [String],
         evaluatedAt: {
           type: Date,
           default: Date.now

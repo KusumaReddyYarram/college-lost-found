@@ -1,82 +1,111 @@
 /**
- * CampusFind AI - Smart Matching Engine Service
+ * CampusFind AI - Smart Matching & Explainable Intelligence Engine
  * 
- * Computes attribute similarity scores (0-100%) and generates explainable reasons:
- * - Category matching (Weight: 25%)
- * - Text/Description word overlap & keyword similarity (Weight: 25%)
- * - Location proximity match (Weight: 20%)
- * - Date/Time delta proximity (Weight: 15%)
- * - Color & Brand characteristics (Weight: 15%)
+ * Deterministic multi-factor scoring (0-100%):
+ * - Category Match (20%)
+ * - Item Title/Name Match (15%)
+ * - Description Word Overlap (20%)
+ * - Color Characteristic Match (10%)
+ * - Brand Name Match (10%)
+ * - Location Proximity Match (15%)
+ * - Date/Time Delta Proximity Match (10%)
  */
 
 class SmartMatchingEngine {
   /**
-   * Calculate match confidence score between a lost item and a found item
+   * Calculate match confidence score & explainable details between a lost item and a found item
    * @param {Object} lostItem 
    * @param {Object} foundItem 
-   * @returns {Object} { confidenceScore: number, reasons: Array<string> }
+   * @returns {Object} { confidenceScore, matchLevel, reasons, differences }
    */
   static calculateMatchScore(lostItem, foundItem) {
     let totalScore = 0;
     const reasons = [];
+    const differences = [];
 
-    // 1. Category Match (25 Points)
+    // 1. Category Match (20 Points)
     if (
       lostItem.category &&
       foundItem.category &&
       lostItem.category.toLowerCase().trim() === foundItem.category.toLowerCase().trim()
     ) {
-      totalScore += 25;
-      reasons.push(`Exact category match (${foundItem.category})`);
+      totalScore += 20;
+      reasons.push(`Same item category (${foundItem.category})`);
+    } else {
+      differences.push(`Different categories (${lostItem.category || 'N/A'} vs ${foundItem.category || 'N/A'})`);
     }
 
-    // 2. Color Match (10 Points)
-    if (
-      lostItem.color &&
-      foundItem.color &&
-      lostItem.color.toLowerCase().trim() === foundItem.color.toLowerCase().trim()
-    ) {
-      totalScore += 10;
-      reasons.push(`Matching color characteristic (${foundItem.color})`);
+    // 2. Title / Item Name Similarity (15 Points)
+    if (lostItem.title && foundItem.title) {
+      const titleLost = lostItem.title.toLowerCase().trim();
+      const titleFound = foundItem.title.toLowerCase().trim();
+
+      if (titleLost === titleFound) {
+        totalScore += 15;
+        reasons.push('Identical item title');
+      } else if (titleLost.includes(titleFound) || titleFound.includes(titleLost)) {
+        totalScore += 10;
+        reasons.push('Similar item title');
+      } else {
+        differences.push('Item title phrasing differs');
+      }
     }
 
-    // 3. Brand Match (10 Points)
-    if (
-      lostItem.brand &&
-      foundItem.brand &&
-      lostItem.brand.toLowerCase().trim() === foundItem.brand.toLowerCase().trim()
-    ) {
-      totalScore += 10;
-      reasons.push(`Matching brand name (${foundItem.brand})`);
+    // 3. Color Match (10 Points)
+    if (lostItem.color && foundItem.color) {
+      if (lostItem.color.toLowerCase().trim() === foundItem.color.toLowerCase().trim()) {
+        totalScore += 10;
+        reasons.push(`Matching color characteristic (${foundItem.color})`);
+      } else {
+        differences.push(`Color variation (${lostItem.color} vs ${foundItem.color})`);
+      }
+    } else if (!lostItem.color || !foundItem.color) {
+      differences.push('Color information incomplete');
     }
 
-    // 4. Location Proximity (20 Points)
+    // 4. Brand Match (10 Points)
+    if (lostItem.brand && foundItem.brand) {
+      if (lostItem.brand.toLowerCase().trim() === foundItem.brand.toLowerCase().trim()) {
+        totalScore += 10;
+        reasons.push(`Matching brand name (${foundItem.brand})`);
+      } else {
+        differences.push(`Brand mismatch (${lostItem.brand} vs ${foundItem.brand})`);
+      }
+    } else if (!lostItem.brand || !foundItem.brand) {
+      differences.push('Brand details not specified');
+    }
+
+    // 5. Location Proximity (15 Points)
     if (lostItem.location && foundItem.location) {
       const locLost = lostItem.location.toLowerCase().trim();
       const locFound = foundItem.location.toLowerCase().trim();
 
       if (locLost === locFound || locLost.includes(locFound) || locFound.includes(locLost)) {
-        totalScore += 20;
+        totalScore += 15;
         reasons.push(`Reported in the same campus area (${foundItem.location})`);
+      } else {
+        differences.push(`Reported at different locations (${lostItem.location} vs ${foundItem.location})`);
       }
     }
 
-    // 5. Date & Time Proximity (15 Points)
+    // 6. Date & Time Proximity (10 Points)
     if (lostItem.date && foundItem.date) {
       const lostTime = new Date(lostItem.date).getTime();
       const foundTime = new Date(foundItem.date).getTime();
       const daysDiff = Math.abs(lostTime - foundTime) / (1000 * 60 * 60 * 24);
 
       if (daysDiff <= 1) {
-        totalScore += 15;
-        reasons.push('Lost and found within a 24-hour timeframe');
+        totalScore += 10;
+        reasons.push('Lost and found within 24 hours');
       } else if (daysDiff <= 3) {
-        totalScore += 8;
-        reasons.push('Lost and found within a 3-day timeframe');
+        totalScore += 6;
+        reasons.push('Lost and found within 3 days');
+      } else {
+        differences.push(`Date gap of ${Math.round(daysDiff)} days between reports`);
       }
     }
 
-    // 6. Description Text Overlap (20 Points)
+    // 7. Description Word Overlap (20 Points)
     if (lostItem.description && foundItem.description) {
       const tokenize = (str) =>
         str
@@ -85,8 +114,8 @@ class SmartMatchingEngine {
           .split(/\s+/)
           .filter((w) => w.length > 2);
 
-      const tokens1 = new Set(tokenize(lostItem.description + ' ' + lostItem.title));
-      const tokens2 = new Set(tokenize(foundItem.description + ' ' + foundItem.title));
+      const tokens1 = new Set(tokenize(lostItem.description));
+      const tokens2 = new Set(tokenize(foundItem.description));
 
       let overlapCount = 0;
       tokens1.forEach((token) => {
@@ -95,18 +124,30 @@ class SmartMatchingEngine {
 
       if (overlapCount >= 3) {
         totalScore += 20;
-        reasons.push('High description keyword similarity detected');
+        reasons.push('High description keyword similarity');
       } else if (overlapCount >= 1) {
         totalScore += 10;
-        reasons.push('Shared key terms detected in item description');
+        reasons.push('Shared keywords in item description');
+      } else {
+        differences.push('Distinct description text');
       }
     }
 
     const confidenceScore = Math.min(totalScore, 100);
 
+    // Match Classification
+    let matchLevel = 'Low Match';
+    if (confidenceScore >= 80) {
+      matchLevel = 'Strong Match';
+    } else if (confidenceScore >= 60) {
+      matchLevel = 'Possible Match';
+    }
+
     return {
       confidenceScore,
-      reasons
+      matchLevel,
+      reasons,
+      differences
     };
   }
 }

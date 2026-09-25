@@ -50,9 +50,12 @@ export const authService = {
 };
 
 export const itemService = {
+  checkDuplicate: (itemData) => apiFetch('/items/check-duplicate', { method: 'POST', body: JSON.stringify(itemData) }),
   createReport: (itemData) => apiFetch('/items', { method: 'POST', body: JSON.stringify(itemData) }),
   getItems: (params = '') => apiFetch(`/items?${params}`),
-  getItemById: (id) => apiFetch(`/items/${id}`)
+  getItemById: (id) => apiFetch(`/items/${id}`),
+  updateItem: (id, itemData) => apiFetch(`/items/${id}`, { method: 'PUT', body: JSON.stringify(itemData) }),
+  deleteItem: (id) => apiFetch(`/items/${id}`, { method: 'DELETE' })
 };
 
 export const matchService = {
@@ -61,11 +64,28 @@ export const matchService = {
 };
 
 export const claimService = {
-  submitClaim: (claimData) => apiFetch('/claims/submit', { method: 'POST', body: JSON.stringify(claimData) })
+  submitClaim: (claimData) => apiFetch('/claims/submit', { method: 'POST', body: JSON.stringify(claimData) }),
+  getClaims: (params = '') => apiFetch(`/claims?${params}`),
+  reviewClaim: (id, reviewData) => apiFetch(`/claims/${id}/review`, { method: 'PUT', body: JSON.stringify(reviewData) })
+};
+
+export const notificationService = {
+  getNotifications: () => apiFetch('/notifications'),
+  markAsRead: (id) => apiFetch(`/notifications/${id}/read`, { method: 'PUT' }),
+  markAllAsRead: () => apiFetch('/notifications/read-all', { method: 'PUT' })
 };
 
 export const statsService = {
   getOverview: () => apiFetch('/stats/overview')
+};
+
+export const adminService = {
+  getUsers: (params = '') => apiFetch(`/admin/users?${params}`),
+  updateUserRole: (id, role) => apiFetch(`/admin/users/${id}/role`, { method: 'PUT', body: JSON.stringify({ role }) }),
+  deleteUser: (id) => apiFetch(`/admin/users/${id}`, { method: 'DELETE' }),
+  getHotspotAnalytics: () => apiFetch('/admin/hotspots'),
+  getRecoveryAnalytics: () => apiFetch('/admin/analytics'),
+  getActivityLogs: () => apiFetch('/admin/activity')
 };
 
 export default {
@@ -74,5 +94,7 @@ export default {
   itemService,
   matchService,
   claimService,
-  statsService
+  notificationService,
+  statsService,
+  adminService
 };

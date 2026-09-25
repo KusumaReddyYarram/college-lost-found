@@ -40,6 +40,14 @@ const userSchema = new mongoose.Schema(
     isVerifiedFinder: {
       type: Boolean,
       default: false
+    },
+    phone: {
+      type: String,
+      default: ''
+    },
+    studentId: {
+      type: String,
+      default: ''
     }
   },
   { timestamps: true }

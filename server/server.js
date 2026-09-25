@@ -7,18 +7,32 @@ const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 dotenv.config();
 
 // Attempt MongoDB Connection
-if (process.env.MONGO_URI) {
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+if (mongoUri) {
   connectDB();
 } else {
-  console.log('Notice: MONGO_URI not set. Running in demo database mode.');
+  console.log('Notice: MONGO_URI / MONGODB_URI not set in environment.');
 }
 
 const app = express();
 
 // Core Middleware
 app.use(express.json());
+
+const allowedOrigins = [
+  process.env.CLIENT_URL || 'http://localhost:5173',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+];
+
 app.use(cors({
-  origin: '*',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
   credentials: true
 }));
 
@@ -34,6 +48,8 @@ app.get('/api/health', (req, res) => {
       items: 'active',
       smartMatching: 'active',
       claims: 'active',
+      notifications: 'active',
+      admin: 'active',
       stats: 'active'
     }
   });
@@ -44,7 +60,9 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/items', require('./routes/itemRoutes'));
 app.use('/api/matches', require('./routes/matchRoutes'));
 app.use('/api/claims', require('./routes/claimRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/stats', require('./routes/statsRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Error Handlers
 app.use(notFound);
