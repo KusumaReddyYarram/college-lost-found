@@ -171,19 +171,19 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 rounded-3xl glass-panel border border-slate-800/80 shadow-2xl overflow-hidden">
+    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F7F4ED]">
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 rounded-3xl bg-[#FFFFFF] border border-[#D8D0C1] shadow-2xl overflow-hidden">
         
         {/* Left Side: Registration Form */}
-        <div className="lg:col-span-7 p-8 sm:p-12 space-y-7 bg-slate-950/70">
+        <div className="lg:col-span-7 p-8 sm:p-12 space-y-7 bg-[#F7F4ED]">
           
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#183C35]/10 border border-[#183C35]/20 text-[#183C35] text-xs font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-[#C96F52]" />
               <span>Create Verified Campus Account</span>
             </div>
-            <h2 className="text-3xl font-extrabold text-white tracking-tight">Join CampusFind AI</h2>
-            <p className="text-slate-400 text-sm">
+            <h2 className="text-3xl font-black text-[#183C35] tracking-tight">Join CampusFind AI</h2>
+            <p className="text-[#66736D] text-sm font-medium">
               Connect with students and staff to quickly report and recover lost belongings.
             </p>
           </div>
@@ -191,16 +191,16 @@ const Register = () => {
           {registerStatus && (
             <div className={`p-4 rounded-xl text-xs flex items-start gap-3 ${
               registerStatus.type === 'success' 
-                ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-300' 
-                : 'bg-rose-500/10 border border-rose-500/20 text-rose-300'
+                ? 'bg-[#31594F]/15 border border-[#31594F]/30 text-[#183C35]' 
+                : 'bg-rose-500/10 border border-rose-500/20 text-rose-800'
             }`}>
               {registerStatus.type === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-[#31594F] shrink-0 mt-0.5" />
               ) : (
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               )}
               <div>
-                <strong className="font-semibold block">Registration Notice</strong>
+                <strong className="font-bold block">Registration Notice</strong>
                 {registerStatus.message}
               </div>
             </div>
@@ -210,11 +210,11 @@ const Register = () => {
             
             {/* Full Name */}
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
                 Full Name
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
                   <User className="w-4 h-4" />
                 </div>
                 <input
@@ -225,18 +225,18 @@ const Register = () => {
                   value={formData.fullName}
                   onChange={handleChange}
                   placeholder="Alex Rivera"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] placeholder-[#8A918B] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
                 />
               </div>
             </div>
 
             {/* Email Address */}
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
@@ -247,7 +247,7 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="name@gmail.com"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] placeholder-[#8A918B] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
                 />
               </div>
             </div>
@@ -255,11 +255,11 @@ const Register = () => {
             {/* Department & Year (Grid) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
                   Department (Optional)
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
                     <Building2 className="w-4 h-4" />
                   </div>
                   <input
@@ -268,24 +268,24 @@ const Register = () => {
                     value={formData.department}
                     onChange={handleChange}
                     placeholder="Computer Science"
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] placeholder-[#8A918B] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
                   Academic Year
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
                     <GraduationCap className="w-4 h-4" />
                   </div>
                   <select
                     name="year"
                     value={formData.year}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
                   >
                     <option value="1st Year">1st Year</option>
                     <option value="2nd Year">2nd Year</option>
@@ -300,11 +300,11 @@ const Register = () => {
             {/* Password & Confirm Password */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
                   Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -315,12 +315,12 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-10 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                    className="w-full pl-10 pr-10 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] placeholder-[#8A918B] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#8A918B] hover:text-[#24332F]"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -328,11 +328,11 @@ const Register = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -343,7 +343,7 @@ const Register = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] placeholder-[#8A918B] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
                   />
                 </div>
               </div>
@@ -353,10 +353,10 @@ const Register = () => {
             {formData.password && (
               <div className="space-y-1 pt-1">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400">Password Strength:</span>
-                  <span className="font-semibold text-slate-200">{strength.label}</span>
+                  <span className="text-[#66736D]">Password Strength:</span>
+                  <span className="font-bold text-[#183C35]">{strength.label}</span>
                 </div>
-                <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-[#E9E1D2] rounded-full overflow-hidden">
                   <div 
                     className={`h-full ${strength.color} transition-all duration-300`} 
                     style={{ width: `${strength.score}%` }}
@@ -373,10 +373,10 @@ const Register = () => {
                   name="agreeTerms"
                   checked={formData.agreeTerms}
                   onChange={handleChange}
-                  className="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-950 mt-0.5"
+                  className="w-4 h-4 rounded bg-[#FFFFFF] border-[#D8D0C1] text-[#C96F52] focus:ring-[#C96F52] mt-0.5"
                 />
-                <span className="text-xs text-slate-400 leading-relaxed">
-                  I agree to the <a href="#terms" onClick={(e) => e.preventDefault()} className="text-indigo-400 hover:underline">Campus Recovery Code of Conduct</a> and understand that false claiming is prohibited.
+                <span className="text-xs text-[#66736D] font-medium leading-relaxed">
+                  I agree to the <a href="#terms" onClick={(e) => e.preventDefault()} className="text-[#C96F52] hover:underline font-bold">Campus Recovery Code of Conduct</a> and understand that false claiming is prohibited.
                 </span>
               </label>
             </div>
@@ -386,7 +386,7 @@ const Register = () => {
               type="submit"
               disabled={isLoading}
               id="reg-submit-btn"
-              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-600/30 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-[#C96F52] hover:bg-[#B25C41] shadow-lg shadow-[#C96F52]/25 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span>Creating Account...</span>
@@ -401,10 +401,10 @@ const Register = () => {
           </form>
 
           {/* Footer link to login */}
-          <div className="text-center pt-3 border-t border-slate-800/80">
-            <p className="text-xs text-slate-400">
+          <div className="text-center pt-3 border-t border-[#D8D0C1]">
+            <p className="text-xs text-[#66736D]">
               Already have a campus account?{' '}
-              <Link to="/login" className="font-semibold text-indigo-400 hover:text-indigo-300">
+              <Link to="/login" className="font-bold text-[#C96F52] hover:text-[#B25C41]">
                 Log In Here
               </Link>
             </p>
@@ -413,41 +413,41 @@ const Register = () => {
         </div>
 
         {/* Right Side: Campus Security Feature Highlights */}
-        <div className="lg:col-span-5 p-8 sm:p-12 bg-gradient-to-br from-purple-950/80 via-slate-900 to-indigo-950/80 border-t lg:border-t-0 lg:border-l border-slate-800 flex flex-col justify-between space-y-8 relative overflow-hidden">
+        <div className="lg:col-span-5 p-8 sm:p-12 bg-[#183C35] text-white border-t lg:border-t-0 lg:border-l border-[#31594F] flex flex-col justify-between space-y-8 relative overflow-hidden">
           
           <div className="space-y-6 relative z-10">
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shadow-lg shadow-purple-500/20">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-2xl bg-[#C9A96E]/20 border border-[#C9A96E]/30 flex items-center justify-center text-[#C9A96E] shadow-lg">
+              <ShieldCheck className="w-6 h-6 text-[#C9A96E]" />
             </div>
 
             <div>
-              <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">Campus Identity & Trust</span>
+              <span className="text-xs font-bold text-[#C9A96E] uppercase tracking-widest">Campus Identity & Trust</span>
               <h3 className="text-2xl font-extrabold text-white mt-1 leading-tight">
                 Built specifically for verified students & staff.
               </h3>
             </div>
 
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-              By requiring verified college domain registration, CampusFind AI ensures authentic reports and maintains high accountability across campus.
+            <p className="text-[#E9E1D2] text-xs sm:text-sm leading-relaxed font-medium">
+              By requiring verified email registration, CampusFind AI ensures authentic reports and maintains high accountability across campus.
             </p>
           </div>
 
           <div className="space-y-3 relative z-10">
-            <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800/80 flex items-center gap-3">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="text-xs text-slate-300 font-medium">Automatic college domain validation schema</span>
+            <div className="p-3.5 rounded-xl bg-[#112C27] border border-[#31594F] flex items-center gap-3">
+              <CheckCircle2 className="w-4 h-4 text-[#C9A96E] shrink-0" />
+              <span className="text-xs text-[#E9E1D2] font-medium">Automatic email format validation schema</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800/80 flex items-center gap-3">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="text-xs text-slate-300 font-medium">Verified Finder reputation score tracking</span>
+            <div className="p-3.5 rounded-xl bg-[#112C27] border border-[#31594F] flex items-center gap-3">
+              <CheckCircle2 className="w-4 h-4 text-[#C9A96E] shrink-0" />
+              <span className="text-xs text-[#E9E1D2] font-medium">Verified Finder reputation score tracking</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800/80 flex items-center gap-3">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="text-xs text-slate-300 font-medium">Zero-spam private verification questions</span>
+            <div className="p-3.5 rounded-xl bg-[#112C27] border border-[#31594F] flex items-center gap-3">
+              <CheckCircle2 className="w-4 h-4 text-[#C9A96E] shrink-0" />
+              <span className="text-xs text-[#E9E1D2] font-medium">Zero-spam private verification questions</span>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-800/80 text-[11px] text-slate-500 relative z-10">
+          <div className="pt-4 border-t border-[#31594F] text-[11px] text-[#A3B0A9] relative z-10">
             Express Auth Middleware • JWT Session Management Ready
           </div>
 

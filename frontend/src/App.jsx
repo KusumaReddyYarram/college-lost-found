@@ -54,7 +54,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white">
+      <div className="min-h-screen flex flex-col bg-[#F7F4ED] text-[#24332F] selection:bg-[#C96F52] selection:text-white">
         
         {/* Top Navbar */}
         <Navbar onOpenReportModal={handleOpenReportModal} />
