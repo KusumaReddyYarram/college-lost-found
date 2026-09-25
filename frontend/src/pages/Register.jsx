@@ -1,26 +1,55 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  User, Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, 
-  CheckCircle2, Sparkles, GraduationCap, Building2, AlertCircle 
+  Sparkles, User, Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, 
+  CheckCircle2, AlertCircle, Building2, GraduationCap 
 } from 'lucide-react';
 import { authService } from '../services/api';
 
 const Register = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    password: '',
-    confirmPassword: '',
     department: '',
     year: '1st Year',
-    agreeTerms: true
+    password: '',
+    confirmPassword: '',
+    agreeTerms: false
   });
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [registerStatus, setRegisterStatus] = useState(null);
+
+  const validateEmail = (email) => {
+    if (!email || typeof email !== 'string' || !email.trim()) {
+      return { isValid: false, message: 'Email Address is required.' };
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return { isValid: false, message: 'Please enter a valid email address (e.g. name@gmail.com).' };
+    }
+    return { isValid: true, message: '' };
+  };
+
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return { score: 0, label: '', color: 'bg-[#D9D0C3]' };
+    let score = 0;
+    if (pwd.length >= 6) score += 25;
+    if (pwd.length >= 10) score += 25;
+    if (/[A-Z]/.test(pwd)) score += 25;
+    if (/[0-9!@#$%^&*]/.test(pwd)) score += 25;
+
+    if (score <= 25) return { score, label: 'Weak', color: 'bg-rose-500' };
+    if (score <= 50) return { score, label: 'Fair', color: 'bg-amber-500' };
+    if (score <= 75) return { score, label: 'Good', color: 'bg-[#B8757F]' };
+    return { score, label: 'Strong', color: 'bg-[#7A303F]' };
+  };
+
+  const strength = getPasswordStrength(formData.password);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -31,92 +60,38 @@ const Register = () => {
     if (registerStatus) setRegisterStatus(null);
   };
 
-  // Standard Email Validation (Accepts any valid email format e.g. name@gmail.com, student@gmail.com, name@university.edu)
-  const validateEmail = (email) => {
-    if (!email || typeof email !== 'string' || !email.trim()) {
-      return { isValid: false, message: 'Email Address is required.' };
-    }
-
-    const cleanEmail = email.trim().toLowerCase();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(cleanEmail)) {
-      return { isValid: false, message: 'Please enter a valid email address (e.g. name@gmail.com).' };
-    }
-
-    return { isValid: true };
-  };
-
-  // Password strength logic
-  const getPasswordStrength = (pass) => {
-    if (!pass) return { score: 0, label: 'None', color: 'bg-slate-700' };
-    let score = 0;
-    if (pass.length >= 6) score += 1;
-    if (pass.length >= 10) score += 1;
-    if (/[A-Z]/.test(pass) && /[0-9]/.test(pass)) score += 1;
-    if (/[^A-Za-z0-9]/.test(pass)) score += 1;
-
-    if (score <= 1) return { score: 25, label: 'Weak', color: 'bg-rose-500' };
-    if (score === 2) return { score: 60, label: 'Medium', color: 'bg-amber-500' };
-    return { score: 100, label: 'Strong & Secure', color: 'bg-emerald-500' };
-  };
-
-  const strength = getPasswordStrength(formData.password);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setRegisterStatus(null);
 
-    // 1. Full Name required
     if (!formData.fullName.trim()) {
-      setRegisterStatus({
-        type: 'error',
-        message: 'Full Name is required.'
-      });
+      setRegisterStatus({ type: 'error', message: 'Full Name is required.' });
       return;
     }
 
-    // 2. Email validation
     const emailVal = validateEmail(formData.email);
     if (!emailVal.isValid) {
-      setRegisterStatus({
-        type: 'error',
-        message: emailVal.message
-      });
+      setRegisterStatus({ type: 'error', message: emailVal.message });
       return;
     }
 
-    // 3. Password required
     if (!formData.password) {
-      setRegisterStatus({
-        type: 'error',
-        message: 'Password is required.'
-      });
+      setRegisterStatus({ type: 'error', message: 'Password is required.' });
       return;
     }
 
-    // 4. Confirm Password matching
-    if (!formData.confirmPassword) {
-      setRegisterStatus({
-        type: 'error',
-        message: 'Please confirm your password.'
-      });
+    if (formData.password.length < 6) {
+      setRegisterStatus({ type: 'error', message: 'Password must be at least 6 characters long.' });
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setRegisterStatus({
-        type: 'error',
-        message: 'Passwords do not match.'
-      });
+      setRegisterStatus({ type: 'error', message: 'Password and Confirm Password do not match.' });
       return;
     }
 
-    // 5. Code of Conduct checkbox
     if (!formData.agreeTerms) {
-      setRegisterStatus({
-        type: 'error',
-        message: 'You must agree to the Campus Recovery Code of Conduct to register.'
-      });
+      setRegisterStatus({ type: 'error', message: 'You must agree to the Campus Recovery Code of Conduct.' });
       return;
     }
 
@@ -128,62 +103,47 @@ const Register = () => {
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
         department: formData.department.trim(),
-        academicYear: formData.year,
         year: formData.year
       });
 
       setIsLoading(false);
       setRegisterStatus({
         type: 'success',
-        message: 'Account created successfully. Please log in.'
+        message: 'Account created successfully! Redirecting to login portal...'
       });
 
       setTimeout(() => {
-        navigate('/login', { 
-          state: { 
+        navigate('/login', {
+          state: {
             registeredEmail: formData.email.trim().toLowerCase(),
-            successMsg: 'Account created successfully. Please log in.' 
-          } 
+            successMsg: 'Registration successful! Please sign in with your password.'
+          }
         });
-      }, 1000);
+      }, 1200);
+
     } catch (error) {
       setIsLoading(false);
-      
-      const errMsg = error.message || '';
-      const isDuplicate = 
-        error.status === 409 ||
-        (error.status === 400 && errMsg.toLowerCase().includes('already exists')) ||
-        errMsg.toLowerCase().includes('already exists') ||
-        errMsg.toLowerCase().includes('duplicate');
-
-      if (isDuplicate) {
-        setRegisterStatus({
-          type: 'error',
-          message: 'An account with this email already exists.'
-        });
-      } else {
-        setRegisterStatus({
-          type: 'error',
-          message: errMsg || 'Registration failed. Please check your information and try again.'
-        });
-      }
+      setRegisterStatus({
+        type: 'error',
+        message: error.message || 'Registration failed. An account with this email may already exist.'
+      });
     }
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F7F4ED]">
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 rounded-3xl bg-[#FFFFFF] border border-[#D8D0C1] shadow-2xl overflow-hidden">
+    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F5F1E8]">
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 rounded-3xl bg-[#FFFFFF] border border-[#D9D0C3] shadow-2xl overflow-hidden">
         
         {/* Left Side: Registration Form */}
-        <div className="lg:col-span-7 p-8 sm:p-12 space-y-7 bg-[#F7F4ED]">
+        <div className="lg:col-span-7 p-8 sm:p-12 space-y-7 bg-[#F5F1E8]">
           
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#183C35]/10 border border-[#183C35]/20 text-[#183C35] text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-[#C96F52]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#171717]/10 border border-[#171717]/20 text-[#171717] text-xs font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-[#7A303F]" />
               <span>Create Verified Campus Account</span>
             </div>
-            <h2 className="text-3xl font-black text-[#183C35] tracking-tight">Join CampusFind AI</h2>
-            <p className="text-[#66736D] text-sm font-medium">
+            <h2 className="text-3xl font-black text-[#171717] tracking-tight">Join CampusFind AI</h2>
+            <p className="text-[#6F6A64] text-sm font-medium">
               Connect with students and staff to quickly report and recover lost belongings.
             </p>
           </div>
@@ -191,11 +151,11 @@ const Register = () => {
           {registerStatus && (
             <div className={`p-4 rounded-xl text-xs flex items-start gap-3 ${
               registerStatus.type === 'success' 
-                ? 'bg-[#31594F]/15 border border-[#31594F]/30 text-[#183C35]' 
+                ? 'bg-[#7A303F]/15 border border-[#7A303F]/30 text-[#171717]' 
                 : 'bg-rose-500/10 border border-rose-500/20 text-rose-800'
             }`}>
               {registerStatus.type === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 text-[#31594F] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-[#7A303F] shrink-0 mt-0.5" />
               ) : (
                 <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               )}
@@ -210,11 +170,11 @@ const Register = () => {
             
             {/* Full Name */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
+              <label className="text-xs font-bold text-[#171717] uppercase tracking-wider">
                 Full Name
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6F6A64]">
                   <User className="w-4 h-4" />
                 </div>
                 <input
@@ -225,18 +185,18 @@ const Register = () => {
                   value={formData.fullName}
                   onChange={handleChange}
                   placeholder="Alex Rivera"
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] placeholder-[#8A918B] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D9D0C3] rounded-xl text-sm text-[#252525] placeholder-[#6F6A64] focus:outline-none focus:ring-2 focus:ring-[#7A303F]/50 focus:border-[#7A303F] transition-all"
                 />
               </div>
             </div>
 
             {/* Email Address */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
+              <label className="text-xs font-bold text-[#171717] uppercase tracking-wider">
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6F6A64]">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
@@ -247,7 +207,7 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="name@gmail.com"
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] placeholder-[#8A918B] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D9D0C3] rounded-xl text-sm text-[#252525] placeholder-[#6F6A64] focus:outline-none focus:ring-2 focus:ring-[#7A303F]/50 focus:border-[#7A303F] transition-all"
                 />
               </div>
             </div>
@@ -255,11 +215,11 @@ const Register = () => {
             {/* Department & Year (Grid) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
+                <label className="text-xs font-bold text-[#171717] uppercase tracking-wider">
                   Department (Optional)
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6F6A64]">
                     <Building2 className="w-4 h-4" />
                   </div>
                   <input
@@ -268,24 +228,24 @@ const Register = () => {
                     value={formData.department}
                     onChange={handleChange}
                     placeholder="Computer Science"
-                    className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] placeholder-[#8A918B] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D9D0C3] rounded-xl text-sm text-[#252525] placeholder-[#6F6A64] focus:outline-none focus:ring-2 focus:ring-[#7A303F]/50 focus:border-[#7A303F] transition-all"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
+                <label className="text-xs font-bold text-[#171717] uppercase tracking-wider">
                   Academic Year
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6F6A64]">
                     <GraduationCap className="w-4 h-4" />
                   </div>
                   <select
                     name="year"
                     value={formData.year}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D9D0C3] rounded-xl text-sm text-[#252525] focus:outline-none focus:ring-2 focus:ring-[#7A303F]/50 focus:border-[#7A303F] transition-all"
                   >
                     <option value="1st Year">1st Year</option>
                     <option value="2nd Year">2nd Year</option>
@@ -300,11 +260,11 @@ const Register = () => {
             {/* Password & Confirm Password */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
+                <label className="text-xs font-bold text-[#171717] uppercase tracking-wider">
                   Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6F6A64]">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -315,12 +275,12 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-10 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] placeholder-[#8A918B] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
+                    className="w-full pl-10 pr-10 py-2.5 bg-[#FFFFFF] border border-[#D9D0C3] rounded-xl text-sm text-[#252525] placeholder-[#6F6A64] focus:outline-none focus:ring-2 focus:ring-[#7A303F]/50 focus:border-[#7A303F] transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#8A918B] hover:text-[#24332F]"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#6F6A64] hover:text-[#252525]"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -328,11 +288,11 @@ const Register = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#183C35] uppercase tracking-wider">
+                <label className="text-xs font-bold text-[#171717] uppercase tracking-wider">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A918B]">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6F6A64]">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -343,7 +303,7 @@ const Register = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D8D0C1] rounded-xl text-sm text-[#24332F] placeholder-[#8A918B] focus:outline-none focus:ring-2 focus:ring-[#C96F52]/50 focus:border-[#C96F52] transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#FFFFFF] border border-[#D9D0C3] rounded-xl text-sm text-[#252525] placeholder-[#6F6A64] focus:outline-none focus:ring-2 focus:ring-[#7A303F]/50 focus:border-[#7A303F] transition-all"
                   />
                 </div>
               </div>
@@ -353,10 +313,10 @@ const Register = () => {
             {formData.password && (
               <div className="space-y-1 pt-1">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-[#66736D]">Password Strength:</span>
-                  <span className="font-bold text-[#183C35]">{strength.label}</span>
+                  <span className="text-[#6F6A64]">Password Strength:</span>
+                  <span className="font-bold text-[#171717]">{strength.label}</span>
                 </div>
-                <div className="w-full h-1.5 bg-[#E9E1D2] rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-[#E7DED0] rounded-full overflow-hidden">
                   <div 
                     className={`h-full ${strength.color} transition-all duration-300`} 
                     style={{ width: `${strength.score}%` }}
@@ -373,10 +333,10 @@ const Register = () => {
                   name="agreeTerms"
                   checked={formData.agreeTerms}
                   onChange={handleChange}
-                  className="w-4 h-4 rounded bg-[#FFFFFF] border-[#D8D0C1] text-[#C96F52] focus:ring-[#C96F52] mt-0.5"
+                  className="w-4 h-4 rounded bg-[#FFFFFF] border-[#D9D0C3] text-[#7A303F] focus:ring-[#7A303F] mt-0.5"
                 />
-                <span className="text-xs text-[#66736D] font-medium leading-relaxed">
-                  I agree to the <a href="#terms" onClick={(e) => e.preventDefault()} className="text-[#C96F52] hover:underline font-bold">Campus Recovery Code of Conduct</a> and understand that false claiming is prohibited.
+                <span className="text-xs text-[#6F6A64] font-medium leading-relaxed">
+                  I agree to the <a href="#terms" onClick={(e) => e.preventDefault()} className="text-[#7A303F] hover:underline font-bold">Campus Recovery Code of Conduct</a> and understand that false claiming is prohibited.
                 </span>
               </label>
             </div>
@@ -386,7 +346,7 @@ const Register = () => {
               type="submit"
               disabled={isLoading}
               id="reg-submit-btn"
-              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-[#C96F52] hover:bg-[#B25C41] shadow-lg shadow-[#C96F52]/25 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-[#7A303F] hover:bg-[#632532] shadow-lg shadow-[#7A303F]/25 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span>Creating Account...</span>
@@ -401,10 +361,10 @@ const Register = () => {
           </form>
 
           {/* Footer link to login */}
-          <div className="text-center pt-3 border-t border-[#D8D0C1]">
-            <p className="text-xs text-[#66736D]">
+          <div className="text-center pt-3 border-t border-[#D9D0C3]">
+            <p className="text-xs text-[#6F6A64]">
               Already have a campus account?{' '}
-              <Link to="/login" className="font-bold text-[#C96F52] hover:text-[#B25C41]">
+              <Link to="/login" className="font-bold text-[#7A303F] hover:text-[#632532]">
                 Log In Here
               </Link>
             </p>
@@ -413,41 +373,41 @@ const Register = () => {
         </div>
 
         {/* Right Side: Campus Security Feature Highlights */}
-        <div className="lg:col-span-5 p-8 sm:p-12 bg-[#183C35] text-white border-t lg:border-t-0 lg:border-l border-[#31594F] flex flex-col justify-between space-y-8 relative overflow-hidden">
+        <div className="lg:col-span-5 p-8 sm:p-12 bg-[#171717] text-white border-t lg:border-t-0 lg:border-l border-[#292929] flex flex-col justify-between space-y-8 relative overflow-hidden">
           
           <div className="space-y-6 relative z-10">
-            <div className="w-12 h-12 rounded-2xl bg-[#C9A96E]/20 border border-[#C9A96E]/30 flex items-center justify-center text-[#C9A96E] shadow-lg">
-              <ShieldCheck className="w-6 h-6 text-[#C9A96E]" />
+            <div className="w-12 h-12 rounded-2xl bg-[#D6B98C]/20 border border-[#D6B98C]/30 flex items-center justify-center text-[#D6B98C] shadow-lg">
+              <ShieldCheck className="w-6 h-6 text-[#D6B98C]" />
             </div>
 
             <div>
-              <span className="text-xs font-bold text-[#C9A96E] uppercase tracking-widest">Campus Identity & Trust</span>
+              <span className="text-xs font-bold text-[#D6B98C] uppercase tracking-widest">Campus Identity & Trust</span>
               <h3 className="text-2xl font-extrabold text-white mt-1 leading-tight">
                 Built specifically for verified students & staff.
               </h3>
             </div>
 
-            <p className="text-[#E9E1D2] text-xs sm:text-sm leading-relaxed font-medium">
+            <p className="text-[#E7DED0] text-xs sm:text-sm leading-relaxed font-medium">
               By requiring verified email registration, CampusFind AI ensures authentic reports and maintains high accountability across campus.
             </p>
           </div>
 
           <div className="space-y-3 relative z-10">
-            <div className="p-3.5 rounded-xl bg-[#112C27] border border-[#31594F] flex items-center gap-3">
-              <CheckCircle2 className="w-4 h-4 text-[#C9A96E] shrink-0" />
-              <span className="text-xs text-[#E9E1D2] font-medium">Automatic email format validation schema</span>
+            <div className="p-3.5 rounded-xl bg-[#212121] border border-[#333333] flex items-center gap-3">
+              <CheckCircle2 className="w-4 h-4 text-[#D6B98C] shrink-0" />
+              <span className="text-xs text-[#E7DED0] font-medium">Automatic email format validation schema</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-[#112C27] border border-[#31594F] flex items-center gap-3">
-              <CheckCircle2 className="w-4 h-4 text-[#C9A96E] shrink-0" />
-              <span className="text-xs text-[#E9E1D2] font-medium">Verified Finder reputation score tracking</span>
+            <div className="p-3.5 rounded-xl bg-[#212121] border border-[#333333] flex items-center gap-3">
+              <CheckCircle2 className="w-4 h-4 text-[#D6B98C] shrink-0" />
+              <span className="text-xs text-[#E7DED0] font-medium">Verified Finder reputation score tracking</span>
             </div>
-            <div className="p-3.5 rounded-xl bg-[#112C27] border border-[#31594F] flex items-center gap-3">
-              <CheckCircle2 className="w-4 h-4 text-[#C9A96E] shrink-0" />
-              <span className="text-xs text-[#E9E1D2] font-medium">Zero-spam private verification questions</span>
+            <div className="p-3.5 rounded-xl bg-[#212121] border border-[#333333] flex items-center gap-3">
+              <CheckCircle2 className="w-4 h-4 text-[#D6B98C] shrink-0" />
+              <span className="text-xs text-[#E7DED0] font-medium">Zero-spam private verification questions</span>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-[#31594F] text-[11px] text-[#A3B0A9] relative z-10">
+          <div className="pt-4 border-t border-[#333333] text-[11px] text-[#A69F95] relative z-10">
             Express Auth Middleware • JWT Session Management Ready
           </div>
 

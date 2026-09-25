@@ -40,7 +40,7 @@ const HeroThreeCanvas = () => {
     container.appendChild(renderer.domElement);
 
     // 4. Lighting setup
-    const ambientLight = new THREE.AmbientLight(0xF7F4ED, 0.9);
+    const ambientLight = new THREE.AmbientLight(0xF5F1E8, 0.9);
     scene.add(ambientLight);
 
     const mainLight = new THREE.DirectionalLight(0xffffff, 1.8);
@@ -48,30 +48,30 @@ const HeroThreeCanvas = () => {
     mainLight.castShadow = true;
     scene.add(mainLight);
 
-    const forestLight = new THREE.PointLight(0x183C35, 2.5, 30);
-    forestLight.position.set(-8, 5, -2);
-    scene.add(forestLight);
+    const burgundyLight = new THREE.PointLight(0x7A303F, 2.5, 30);
+    burgundyLight.position.set(-8, 5, -2);
+    scene.add(burgundyLight);
 
-    const goldLight = new THREE.PointLight(0xC9A96E, 2.5, 30);
+    const goldLight = new THREE.PointLight(0xD6B98C, 2.5, 30);
     goldLight.position.set(8, -5, 2);
     scene.add(goldLight);
 
-    // 5. Materials (Deep Forest, Terracotta, Champagne Gold, Warm Sand)
+    // 5. Materials (Burgundy, Deep Charcoal, Soft Champagne, Soft Cream, Muted Rose)
     const indigoMat = new THREE.MeshStandardMaterial({
-      color: 0xC96F52, // Terracotta
+      color: 0x7A303F, // Burgundy
       roughness: 0.35,
       metalness: 0.2,
       shadowSide: THREE.DoubleSide
     });
 
     const darkMat = new THREE.MeshStandardMaterial({
-      color: 0x183C35, // Deep Forest
+      color: 0x171717, // Deep Charcoal
       roughness: 0.3,
-      metalness: 0.7
+      metalness: 0.8
     });
 
     const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0xE9E1D2, // Warm Sand Glass
+      color: 0xF5F1E8, // Soft Cream Glass
       transparent: true,
       opacity: 0.85,
       roughness: 0.1,
@@ -81,13 +81,13 @@ const HeroThreeCanvas = () => {
     });
 
     const brassMat = new THREE.MeshStandardMaterial({
-      color: 0xC9A96E, // Champagne Gold
+      color: 0xD6B98C, // Soft Champagne Gold
       roughness: 0.2,
       metalness: 0.95
     });
 
     const emeraldMat = new THREE.MeshStandardMaterial({
-      color: 0x31594F, // Deep Olive
+      color: 0xB8757F, // Muted Rose
       roughness: 0.3,
       metalness: 0.5
     });
@@ -229,7 +229,7 @@ const HeroThreeCanvas = () => {
 
     particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
     const particleMat = new THREE.PointsMaterial({
-      color: 0xC9A96E,
+      color: 0xD6B98C,
       size: 0.08,
       transparent: true,
       opacity: 0.6

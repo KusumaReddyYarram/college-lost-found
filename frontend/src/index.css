@@ -1,37 +1,65 @@
 @import "tailwindcss";
 
+:root {
+  --color-soft-cream: #F5F1E8;
+  --color-deep-charcoal: #171717;
+  --color-warm-beige: #E7DED0;
+  --color-burgundy: #7A303F;
+  --color-burgundy-hover: #632532;
+  --color-muted-rose: #B8757F;
+  --color-soft-champagne: #D6B98C;
+  --color-border-beige: #D9D0C3;
+  --color-text-primary: #252525;
+  --color-text-secondary: #6F6A64;
+}
+
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white min-h-screen overflow-x-hidden;
+    background-color: #F5F1E8;
+    color: #252525;
+    font-family: inherit;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: #7A303F;
+    color: #ffffff;
   }
 }
 
-/* Custom Glassmorphic Utilities & Animations */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(23, 23, 23, 0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(214, 185, 140, 0.2);
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.5);
+  background: #FFFFFF;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid #D9D0C3;
 }
 
 .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.2);
+  border-color: #7A303F;
+  box-shadow: 0 10px 30px -10px rgba(122, 48, 63, 0.15);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #38bdf8 100%);
+  background: linear-gradient(135deg, #171717 0%, #7A303F 60%, #D6B98C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-wine {
+  background: linear-gradient(135deg, #7A303F 0%, #B8757F 50%, #D6B98C 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .bg-radial-glow {
-  background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+  background: radial-gradient(circle at 50% 0%, rgba(214, 185, 140, 0.15) 0%, rgba(245, 241, 232, 0) 70%);
 }
