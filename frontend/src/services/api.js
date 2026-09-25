@@ -59,8 +59,13 @@ export const itemService = {
 };
 
 export const matchService = {
+  getMatches: (params = '') => apiFetch(`/matches?${params}`),
+  getMatchById: (id) => apiFetch(`/matches/${id}`),
+  getMatchesByLostItem: (lostItemId) => apiFetch(`/matches/lost/${lostItemId}`),
+  getMatchesByFoundItem: (foundItemId) => apiFetch(`/matches/found/${foundItemId}`),
   evaluate: (lostItem, foundItem) => apiFetch('/matches/evaluate', { method: 'POST', body: JSON.stringify({ lostItem, foundItem }) }),
-  getMyMatches: () => apiFetch('/matches/my-matches')
+  getMyMatches: () => apiFetch('/matches/my-matches'),
+  updateStatus: (id, status) => apiFetch(`/matches/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) })
 };
 
 export const claimService = {

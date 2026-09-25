@@ -68,65 +68,18 @@ const createItem = async (req, res, next) => {
       await ActivityLogger.log(userId, `${type.toUpperCase()}_REPORT_CREATED`, `Created ${type} report: ${title}`);
     }
 
-    // Automatically trigger Smart Matching against opposing items
-    const opposingType = type === 'lost' ? 'found' : 'lost';
-    const opposingItems = await Item.find({ type: opposingType, status: { $ne: 'recovered' } });
+    // Automatically trigger Smart Matching against opposing items using MatchingService
+    const MatchingService = require('../services/matchingService');
+    const generatedMatches = await MatchingService.processItemMatching(newItem);
 
-    const matches = [];
-
-    for (const oppItem of opposingItems) {
-      const lostItemObj = type === 'lost' ? newItem : oppItem;
-      const foundItemObj = type === 'found' ? newItem : oppItem;
-
-      const { confidenceScore, matchLevel, reasons, differences } = SmartMatchingEngine.calculateMatchScore(
-        lostItemObj,
-        foundItemObj
-      );
-
-      if (confidenceScore >= 40) {
-        matches.push({
-          matchedItem: oppItem._id,
-          confidenceScore,
-          matchLevel,
-          reasons,
-          differences
-        });
-
-        // Add match to opposing item
-        oppItem.potentialMatches.push({
-          matchedItem: newItem._id,
-          confidenceScore,
-          matchLevel,
-          reasons,
-          differences
-        });
-        if (oppItem.status === 'reported') oppItem.status = 'potential_match';
-        await oppItem.save();
-
-        // Notify opposing item owner if high confidence
-        if (confidenceScore >= 60 && oppItem.user) {
-          await NotificationService.notify({
-            userId: oppItem.user,
-            title: `Potential Match Detected (${confidenceScore}%)`,
-            message: `A new ${type} item '${title}' matches your reported ${oppItem.type} item '${oppItem.title}' with ${confidenceScore}% confidence.`,
-            type: 'match',
-            relatedItem: newItem._id
-          });
-        }
-      }
-    }
-
-    if (matches.length > 0) {
-      newItem.potentialMatches = matches;
-      newItem.status = 'potential_match';
-      await newItem.save();
-    }
+    // Fetch refreshed item with populated potentialMatches
+    const refreshedItem = await Item.findById(newItem._id);
 
     res.status(201).json({
       status: 'success',
       message: `${type.toUpperCase()} item report created successfully`,
-      item: newItem,
-      potentialMatchesCount: matches.length
+      item: refreshedItem || newItem,
+      potentialMatchesCount: generatedMatches ? generatedMatches.length : 0
     });
   } catch (error) {
     next(error);

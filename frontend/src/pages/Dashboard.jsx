@@ -41,6 +41,14 @@ const Dashboard = ({ onOpenReportModal }) => {
     feedback: null
   });
 
+  // View Match Detailed Analysis Modal State
+  const [viewMatchModal, setViewMatchModal] = useState({
+    isOpen: false,
+    match: null,
+    myItem: null,
+    matchedItem: null
+  });
+
   // Profile Edit State
   const [profileForm, setProfileForm] = useState({
     fullName: '',
@@ -545,19 +553,37 @@ const Dashboard = ({ onOpenReportModal }) => {
 
                       {/* Explainable Reasons */}
                       <div className="space-y-2">
-                        <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">AI Explainable Match Reasons:</h4>
+                        <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">AI Explainable Match Factors:</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {match.reasons.map((reason, rIdx) => (
+                          {match.reasons && match.reasons.map((reason, rIdx) => (
                             <div key={rIdx} className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2 text-xs text-slate-300">
                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                               <span>{reason}</span>
                             </div>
                           ))}
+                          {match.differences && match.differences.map((diff, dIdx) => (
+                            <div key={dIdx} className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/60 flex items-center gap-2 text-xs text-slate-400">
+                              <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                              <span>{diff}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
 
-                      {/* Claim Action */}
-                      <div className="pt-2 flex justify-end">
+                      {/* Match Actions */}
+                      <div className="pt-2 flex flex-wrap items-center justify-end gap-3">
+                        <button
+                          onClick={() => setViewMatchModal({
+                            isOpen: true,
+                            match,
+                            myItem: group.myItem,
+                            matchedItem: match.matchedItem
+                          })}
+                          className="px-4 py-2.5 rounded-xl font-bold text-xs text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 transition-all flex items-center gap-2"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View Match Analysis</span>
+                        </button>
                         <button
                           onClick={() => handleOpenClaimModal(match.matchedItem)}
                           className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/30 transition-all flex items-center gap-2"
@@ -839,6 +865,163 @@ const Dashboard = ({ onOpenReportModal }) => {
         )}
 
       </div>
+
+      {/* AI MATCH ANALYSIS & EXPLAINABILITY MODAL */}
+      {viewMatchModal.isOpen && viewMatchModal.match && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn overflow-y-auto">
+          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-indigo-400" />
+                  <h3 className="text-lg font-bold text-white">AI Match Analysis Breakdown</h3>
+                </div>
+                <p className="text-xs text-slate-400">Explainable confidence scoring and multi-factor comparison</p>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <span className="text-3xl font-black text-indigo-400">{viewMatchModal.match.confidenceScore || viewMatchModal.match.finalScore}%</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase block mt-1 ${
+                    (viewMatchModal.match.confidenceScore || viewMatchModal.match.finalScore) >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                  }`}>
+                    {viewMatchModal.match.matchLevel || 'Possible Match'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setViewMatchModal({ isOpen: false, match: null, myItem: null, matchedItem: null })}
+                  className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Side by Side Items Comparison */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* My Item */}
+              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2 text-xs">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-800 text-slate-300">My Reported Item</span>
+                <h4 className="font-bold text-white text-sm">{viewMatchModal.myItem?.title || 'Reported Item'}</h4>
+                <div className="space-y-1 text-slate-400 text-[11px]">
+                  <p><strong className="text-slate-300">Category:</strong> {viewMatchModal.myItem?.category}</p>
+                  <p><strong className="text-slate-300">Location:</strong> {viewMatchModal.myItem?.location}</p>
+                  <p><strong className="text-slate-300">Description:</strong> {viewMatchModal.myItem?.description}</p>
+                </div>
+              </div>
+
+              {/* Matched Candidate Item */}
+              <div className="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/30 space-y-2 text-xs">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Matched Item</span>
+                <h4 className="font-bold text-white text-sm">{viewMatchModal.matchedItem?.title}</h4>
+                <div className="space-y-1 text-slate-400 text-[11px]">
+                  <p><strong className="text-slate-300">Category:</strong> {viewMatchModal.matchedItem?.category}</p>
+                  <p><strong className="text-slate-300">Location:</strong> {viewMatchModal.matchedItem?.location}</p>
+                  <p><strong className="text-slate-300">Description:</strong> {viewMatchModal.matchedItem?.description}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Factor Scores Breakdown */}
+            <div className="space-y-3 border-t border-slate-800/80 pt-4">
+              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Matching Factors Analysis:</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  <div className="flex justify-between mb-1 text-slate-300">
+                    <span>Description Semantic Similarity</span>
+                    <span className="font-bold text-indigo-400">{viewMatchModal.match.scores?.semantic ?? viewMatchModal.match.confidenceScore}%</span>
+                  </div>
+                  <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-800">
+                    <div className="bg-gradient-to-r from-indigo-500 to-indigo-400 h-1.5 rounded-full" style={{ width: `${viewMatchModal.match.scores?.semantic ?? viewMatchModal.match.confidenceScore}%` }}></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-1 text-slate-300">
+                    <span>Category Match</span>
+                    <span className="font-bold text-emerald-400">{viewMatchModal.match.scores?.category ?? 100}%</span>
+                  </div>
+                  <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-800">
+                    <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${viewMatchModal.match.scores?.category ?? 100}%` }}></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-1 text-slate-300">
+                    <span>Item Title Similarity</span>
+                    <span className="font-bold text-indigo-400">{viewMatchModal.match.scores?.name ?? 90}%</span>
+                  </div>
+                  <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-800">
+                    <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${viewMatchModal.match.scores?.name ?? 90}%` }}></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-1 text-slate-300">
+                    <span>Campus Location Proximity</span>
+                    <span className="font-bold text-indigo-400">{viewMatchModal.match.scores?.location ?? 85}%</span>
+                  </div>
+                  <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-800">
+                    <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${viewMatchModal.match.scores?.location ?? 85}%` }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Explainable Reasons */}
+            <div className="space-y-2 border-t border-slate-800/80 pt-4">
+              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Why this may be a match:</h4>
+              <div className="space-y-1.5">
+                {viewMatchModal.match.reasons && viewMatchModal.match.reasons.map((reason, idx) => (
+                  <div key={idx} className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2 text-xs text-emerald-300">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{reason}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Differences if any */}
+            {viewMatchModal.match.differences && viewMatchModal.match.differences.length > 0 && (
+              <div className="space-y-2 border-t border-slate-800/80 pt-4">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Differences & Missing Information:</h4>
+                <div className="space-y-1.5">
+                  {viewMatchModal.match.differences.map((diff, idx) => (
+                    <div key={idx} className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-2 text-xs text-slate-400">
+                      <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>{diff}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between border-t border-slate-800 pt-4">
+              <button
+                onClick={() => setViewMatchModal({ isOpen: false, match: null, myItem: null, matchedItem: null })}
+                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+              >
+                Close Analysis
+              </button>
+              <button
+                onClick={() => {
+                  const targetItem = viewMatchModal.matchedItem;
+                  setViewMatchModal({ isOpen: false, match: null, myItem: null, matchedItem: null });
+                  handleOpenClaimModal(targetItem);
+                }}
+                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2"
+              >
+                <Shield className="w-4 h-4" />
+                <span>Verify Ownership & Submit Claim</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* OWNERSHIP CLAIM SUBMISSION MODAL */}
       {claimModalState.isOpen && (
